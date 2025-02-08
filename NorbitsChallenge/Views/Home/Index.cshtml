@@ -8,19 +8,126 @@
 
 
 <h2>
-    Vis biler for @Model.CompanyName
+    Vis data for biler av @Model.CompanyName
 </h2>
+<p>
+    License Plate:
+</p>
 <form asp-action="Index" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess">
     <input type="hidden" name="companyId" value="@Model.CompanyId" />
-    <input type="text" name="licensePlate" />
+    <input type="text" name="licensePlate" required/>
     <input type="submit" value="Søk" />
 </form>
-
 
 <div class="hidden" id="tireInfo">
     <div>Denne bilen har <div id="tireCount" style="display: inline;"></div> dekk på dekkhotell</div>
 </div>
-    
+
+<div class="hidden" id="allDataInfo">
+    <div><h3>Data på oppsøkt bil:</h3></div>
+    <table>
+        <tr>
+            <th style="padding:10px; text-align:center;">Description</th>
+            <th style="padding:10px; text-align:center;">Model</th>
+            <th style="padding:10px; text-align:center;">Brand</th>
+            <th style="padding:10px; text-align:center;">Tires</th>
+        </tr>
+        <tr>
+            <td style="padding:10px; text-align:center;"><div id="description"></div></td>
+            <td style="padding:10px; text-align:center;"><div id="carmodel"></div></td>
+            <td style="padding:10px; text-align:center;"><div id="brand"></div></td>
+            <td style="padding:10px; text-align:center;"><div id="tireCount2"></div></td>
+        </tr>
+    </table>
+</div>
+
+<div class="hidden" id="allDataErrorInfo">
+    <div id="allDataError" style="display: inline;"></div>
+</div>
+
+
+<h2>
+    Vis alle biler knytt til @Model.CompanyName i en liste
+</h2>
+
+<form asp-action="List" data-ajax="true" data-ajax-method="POST" data-ajax-success="listFunction">
+    <input type="hidden" name="companyId" value="@Model.CompanyId" />
+    <input type="submit" value="Liste av biler" />
+</form>
+
+<br />
+<div class="hidden" id="listInfo">
+<ul>
+    <li> <div id="LP"> </div> </li>
+</ul>
+</div>
+
+
+<h2>
+    Leggje til ny bil
+</h2>    
+
+<p>
+    For å legge til en ny bil må alle feltene fylles ut.
+</p>
+
+<form asp-action="AddCar" data-ajax="true" data-ajax-method="POST" data-ajax-success="addCarFunction">
+    <input type="hidden" name="companyId" value="@Model.CompanyId" />
+    <label for="licensePlate">License Plate:</label><input type="text" name="licensePlate" required/>
+    <label for="description">Description:</label><input type="text" name="description" required/>
+    <label for="carmodel">Model:</label><input type="text" name="carmodel" required/>
+    <label for="brand">Brand:</label><input type="text" name="brand" required/>
+    <br />
+    <label for="tireCount">Amount of tires in the workshop:</label><input type="text" name="tireCount" required/>
+    <br />
+    <input type="submit" value="Leggje til ny bil" />
+</form>
+
+<div class="hidden" id="addCarInfo">
+    <div id="addCarReturn" style="display: inline;"></div>
+</div>
+<br />
+
+<h2>
+    Slette bil
+</h2>
+
+<form asp-action="DeleteACar" data-ajax="true" data-ajax-method="POST" data-ajax-success="deleteCarFunction">
+    <input type="hidden" name="companyId" value="@Model.CompanyId" />
+    <label for="licensePlate">License Plate:</label><input type="text" name="licensePlate" required/>
+    <input type="submit" value="Delete" />
+</form>
+
+<div class="hidden" id="deleteCarInfo">
+    <div id="deleteCarReturn" style="display: inline;"></div>
+</div>
+<br />
+
+<h2>
+    Redigere data på ein bil
+</h2>
+<p>
+    For å redigere bil alle feltene må fylles ut.
+</p>
+
+<form asp-action="ModifyACar" data-ajax="true" data-ajax-method="POST" data-ajax-success="modifyCarFunction">
+    <input type="hidden" name="companyId" value="@Model.CompanyId" />
+    <label for="licensePlate">License Plate:</label><input type="text" name="licensePlate" required />
+    <label for="description">Description:</label><input type="text" name="description" required />
+    <label for="carmodel">Model:</label><input type="text" name="carmodel" required />
+    <label for="brand">Brand:</label><input type="text" name="brand" required />
+    <br />
+    <label for="tireCount">Amount of tires in the workshop:</label><input type="text" name="tireCount" required />
+    <br />
+    <input type="submit" value="Redigere bil" />
+</form>
+
+<div class="hidden" id="modifyCarInfo">
+    <div id="modifyCarReturn" style="display: inline;"></div>
+</div>
+
+
+
 <hr/>
 <h4>Gå til <a asp-action="Index" asp-controller="Settings" asp-route-companyId="@Model.CompanyId">Innstillinger</a></h4>
 
@@ -28,9 +135,77 @@
 {
     <script type="text/javascript">
         function onSuccess(data) {
-            var tireCount = data.tireCount;
-            $('#tireCount').text(tireCount);
-            $('#tireInfo').removeClass('hidden');
+            $('#tireInfo').addClass('hidden');
+            $('#allDataInfo').addClass('hidden');
+            $('#allDataErrorInfo').addClass('hidden');
+
+            var lPexists = data.lPexists;
+            if (lPexists)
+            {
+                var tireCount = data.tireCount;
+                var description = data.description;
+                var carmodel = data.carmodel;
+                var brand = data.brand;
+                $('#tireCount').text(tireCount);
+                $('#tireCount2').text(tireCount);
+                $('#description').text(description);
+                $('#carmodel').text(carmodel);
+                $('#brand').text(brand);
+                $('#tireInfo').removeClass('hidden');
+                $('#allDataInfo').removeClass('hidden');
+            }
+            else
+            {
+                var error = "No car registered with this license plate.";
+                $('#allDataError').text(error);
+                $('#allDataErrorInfo').removeClass('hidden');
+            }
         }
     </script>
+
+    <script type="text/javascript">
+        function listFunction(data) {
+            var licensePl = data.licensePl;
+            $('#LP').empty();
+
+            licensePl.forEach(function(plate) {
+            $('#LP').append(`<li>${plate}</li>`);
+            });
+
+            $('#listInfo').removeClass('hidden');
+        }
+    </script>
+
+    <script type="text/javascript">
+        function addCarFunction(data) {
+            $('#listInfo').addClass('hidden');
+
+            var addCarReturn = data.addCarReturn;
+            $('#addCarReturn').text(addCarReturn);
+            $('#addCarInfo').removeClass('hidden');
+        }
+    </script>
+
+    <script type="text/javascript">
+        function deleteCarFunction(data) {
+            $('#listInfo').addClass('hidden');
+
+            var deleteCarReturn = data.deleteCarReturn;
+            $('#deleteCarReturn').text(deleteCarReturn);
+            $('#deleteCarInfo').removeClass('hidden');
+        }
+    </script>
+
+    <script type="text/javascript">
+        function modifyCarFunction(data) {
+            $('#tireInfo').addClass('hidden');
+            $('#allDataInfo').addClass('hidden');
+            $('#allDataErrorInfo').addClass('hidden');
+
+            var modifyCarReturn = data.modifyCarReturn;
+            $('#modifyCarReturn').text(modifyCarReturn);
+            $('#modifyCarInfo').removeClass('hidden');
+        }
+    </script>
+
 }

@@ -1,0 +1,5 @@
+- Added "required" to the input fields, so that the form is not submitted with invalid data. 
+- Added checks if the inserted license plate is registered in the database and added error messages for the case of a not registered one. 
+- Added that the data for a car becomes hidden when certain forms are submitted, f.exp.: show all data for a car, modify a car. Reason: These functions lead to an altered output of the show all data function.
+- Added that the list of all cars is hidden when a new car is added or deleted, because this changes the output. 
+- Changed for the function GetTireCount that the customer`s data is not directly transmitted in the SQL command out of safety reasons. I would implement this for all the SQL commands.
